@@ -9,15 +9,21 @@
 #include "Eigen-3.3/Eigen/QR"
 #include "json.hpp"
 
+#include <iostream>
+
+#include "Car.hpp"
+#include "Planner.hpp"
+
 using namespace std;
+using namespace planning;
 
 // for convenience
 using json = nlohmann::json;
 
+Car car;
+
 // For converting back and forth between radians and degrees.
 constexpr double pi() { return M_PI; }
-double deg2rad(double x) { return x * pi() / 180; }
-double rad2deg(double x) { return x * 180 / pi(); }
 
 // Checks if the SocketIO event has JSON data.
 // If there is data the JSON object in string format will be returned,
@@ -226,6 +232,7 @@ int main() {
           	double car_d = j[1]["d"];
           	double car_yaw = j[1]["yaw"];
           	double car_speed = j[1]["speed"];
+						if(car_d > 12 || car_d<0) return;
 
           	// Previous path data given to the Planner
           	auto previous_path_x = j[1]["previous_path_x"];
@@ -241,9 +248,35 @@ int main() {
 
           	vector<double> next_x_vals;
           	vector<double> next_y_vals;
-
+            for (int i = 0; i < previous_path_x.size(); i++) 
+            {
+                next_x_vals.push_back(previous_path_x[i]);
+                next_y_vals.push_back(previous_path_y[i]);
+            }
 
           	// TODO: define a path made up of (x,y) points that the car will visit sequentially every .02 seconds
+						if(previous_path_x.size() > 0){
+								car.setSD(end_path_s);
+						} else{
+								car.setSD(car_s);
+						}
+
+						car.updateSavety(sensor_fusion, previous_path_x.size());
+
+						car.updateState();
+			
+						vector<double> next_wp0 = getXY(car.m_s + 30, (2 + 4 * car.m_lane), map_waypoints_s, map_waypoints_x, map_waypoints_y);
+            vector<double> next_wp1 = getXY(car.m_s + 60, (2 + 4 * car.m_lane), map_waypoints_s, map_waypoints_x, map_waypoints_y);
+            vector<double> next_wp2 = getXY(car.m_s + 90, (2 + 4 * car.m_lane), map_waypoints_s, map_waypoints_x, map_waypoints_y);
+
+						Planner planner(car_x, car_y, car_yaw,previous_path_x, previous_path_y);
+
+
+						planner.calculateSplineWithWayPoints(next_wp0, next_wp1, next_wp2);
+
+						planner.plan(next_x_vals, next_y_vals, car.m_trueSpeed);
+
+
           	msgJson["next_x"] = next_x_vals;
           	msgJson["next_y"] = next_y_vals;
 

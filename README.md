@@ -1,3 +1,17 @@
+## Model Documentation
+The code is mainly implemented by 2 Classes. The Car class and the Planner class. These classes are implemented as following principle. 
+
+1. The Car class will firstly check the safety status in its own lane and its neighbor lanes. This is implemented in the `Car::updateSavety(vector<vector<double>> sensor_fusion, int latency)` function. It takes the sensor fusion information and the delay due to the simulation as input, and update the lane safety information and its own velocity.  
+Then it update its velocity based on its environment. This is implemented in `Car::updateState()` function. After calling this function, the car will update its velocity based on the cars ahead of it so that it can avoid the collisions.
+
+2. The planner function takes 2 way points from the previous path, and generate 3 new way points. The new way points are 30 meter away from its previous one, i.e. the s value of the way points will incremented 30 for each way points. The lateral distance d is calculated by the lane number. Based on these 5 way points, the spline will be computed. This are implemented in `Planner::calculateSplineWithWayPoints(vector<double> waypoint1, vector<double> waypoint2, vector<double> waypoint3)`.  
+Based on spline mentioned above, the planner will generate a trajectory based on the current car speed. This part of code are mainly referenced in the project Q&A in https://www.youtube.com/watch?time_continue=2421&v=7sI3VHFPP0w. After that, the planner will generate a series of way points, that the car should follow.
+
+
+
+
+below are original Udacity readme
+----
 # CarND-Path-Planning-Project
 Self-Driving Car Engineer Nanodegree Program
    
