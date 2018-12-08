@@ -72,12 +72,14 @@ namespace planning{
 
                 else if (lane == m_lane - 1) 
                 {
-                    if ( !checkSaveDistance(s , m_s - 5)) m_leftSave = false;
+                    if ( !checkSaveDistance(s , m_s - 5) 
+                    || !checkSavetyBehind(s, m_s-5)) m_leftSave = false;
                 }
                 
                 else if (lane == m_lane + 1) 
                 {
-                    if (!checkSaveDistance(s, m_s - 5 )) m_rightSave = false;
+                    if (!checkSaveDistance(s, m_s - 5 ) 
+                    || !checkSavetyBehind(s, m_s-5)) m_rightSave = false;
                 }
 
             }
@@ -85,6 +87,11 @@ namespace planning{
 
         bool Car::checkSaveDistance(double otherCarS, double ownS){
             bool save =  ((otherCarS > ownS) && (otherCarS - ownS) < 30)?false:true;
+            return save;
+        }
+
+        bool Car::checkSavetyBehind(double otherCarS, double ownS){
+            bool save =  ((otherCarS < ownS) && (ownS - otherCarS) < 15)?false:true;
             return save;
         }
 

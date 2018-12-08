@@ -28,6 +28,7 @@ class Car{
 
     private:
         bool checkSaveDistance(double otherCarS, double ownS);
+        bool checkSavetyBehind(double otherCarS, double ownS);
 
         int getLane(double d);
 
